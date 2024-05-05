@@ -10,7 +10,7 @@ def startup():
     app.cn=Conection()
     print("inicio conexion")
 
-@app.on_event('shutdowm')
+@app.on_event('shutdown')
 def shutdown():
     app.cn.close()
     print("fin conexion")
