@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from models import AgregarParada, AgregarRuta
 from dao import Conection
+import uvicorn
 
 app = FastAPI()
 
@@ -29,3 +30,5 @@ def AgregarParada(parada:AgregarParada):
     salida=app.cn.insertarParada(parada)
     return salida
 
+if __name__== '__main__':
+    uvicorn.run("main:app",  port=8000,reload=True)
