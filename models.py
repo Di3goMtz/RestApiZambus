@@ -12,8 +12,13 @@ class AgregarParada(BaseModel):
     ubicacionLongitud:float
     horarios:list[Horarios]
 
+class ParadaOut(BaseModel):
+    nombre:str
+    ubicacionLatitud:float
+    ubicacionLongitud:float
+    horarios:list[Horarios]
+
 class Parada(BaseModel):
-    idParada:int
     nombre:str
     ubicacionLatitud:float
     ubicacionLongitud:float

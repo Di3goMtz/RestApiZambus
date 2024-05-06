@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Body
-from models import AgregarParada, AgregarRuta, ModificarRuta
+from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios
 from dao import Conection
 import uvicorn
 
@@ -44,10 +44,50 @@ def eliminarRuta(id:int):
     mensaje = app.cn.eliminarRuta(id)
     return mensaje
 
-@app.put("/Parada")
-def AgregarParada(parada:AgregarParada):
-    salida=app.cn.insertarParada(parada)
+@app.put("/rutas/Agregar/Parada")
+def AgregarParada(id:int, parada:AgregarParada):
+    salida=app.cn.insertarParada(id, parada)
     return salida
+
+@app.put("/rutas/Eliminar/Parada/{idRuta:int}/{idParada:int}")
+def eliminarParada(idRuta:int, idParada:int):
+    mensaje = app.cn.eliminarParada(idRuta, idParada)
+    return mensaje
+
+@app.put("/rutas/Modifica/Parada/{idRuta:int}/{idParada:int}")
+def modificarParada(idRuta:int, idParada:int, parada:ParadaOut):
+    paradaModificar = app.cn.modificarParada(idRuta, idParada, parada)
+    return paradaModificar
+
+@app.get("/rutas/Paradas/{idRuta:int}")
+def obtenerParadas(idRuta:int):
+    paradas=app.cn.obtenerParadas(idRuta)
+    return paradas
+
+@app.get("/rutas/Paradas/{idRuta:int}/{idParada:int}")
+def obtenerParada(idRuta:int, idParada:int):
+    paradas=app.cn.obtenerParadaEspecifica(idRuta, idParada)
+    return paradas
+
+@app.put("/rutas/Paradas/AgregarHorario/{idRuta:int}/{idParada:int}")
+def agregarHorario(idRuta:int, idParada:int, horario:Horarios):
+    salida=app.cn.insertarHorario(idRuta, idParada, horario)
+    return salida
+
+@app.put("/rutas/Paradas/QuitarHorario/{idRuta:int}/{idParada:int}/{numCorrida:int}")
+def quitarHorario(idRuta:int, idParada:int, numCorrida:int):
+    salida=app.cn.eliminarHorario(idRuta, idParada, numCorrida)
+    return salida
+
+@app.get("/rutas/Paradas/Horario/{idRuta:int}/{idParada:int}")
+def obtenerHorario(idRuta:int, idParada:int):
+    horarios=app.cn.obtenerHorarios(idRuta, idParada)
+    return horarios
+
+@app.get("/rutas/Paradas/Horario/{idRuta:int}/{idParada:int}/{numCorrida:int}")
+def obtenerHorario(idRuta:int, idParada:int, numCorrida:int):
+    horarios=app.cn.obtenerHorarioEspecifico(idRuta, idParada, numCorrida)
+    return horarios
 
 if __name__== '__main__':
     uvicorn.run("main:app",  port=8000,reload=True)
