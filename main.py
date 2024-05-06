@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Body
-from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios
+from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa
 from dao import Conection
 import uvicorn
 
@@ -88,6 +88,36 @@ def obtenerHorario(idRuta:int, idParada:int):
 def obtenerHorario(idRuta:int, idParada:int, numCorrida:int):
     horarios=app.cn.obtenerHorarioEspecifico(idRuta, idParada, numCorrida)
     return horarios
+
+@app.put("/rutas/Agregar/Tarifa")
+def agregarTarifa(id:int, tarifas:Tarifas):
+    salida=app.cn.insertarTarifa(id, tarifas)
+    return salida
+
+@app.put("/rutas/Modificar/Tarifas/{idRuta:int}/{idTarifas:int}")
+def modificarTarifa(idRuta:int, idTarifas:int, tarifa:Tarifas):
+    salida=app.cn.modificarTarifa(idRuta, idTarifas, tarifa)
+    return salida
+
+@app.put("/rutas/Eliminar/Tarifas/{idRuta:int}/{idTarifas:int}")
+def eliminarTarifa(idRuta:int, idTarifas:int):
+    salida=app.cn.eliminarTarifa(idRuta, idTarifas)
+    return salida
+
+@app.get("/rutas/Tarifas/{idRuta:int}")
+def consultarTarifas(idRuta:int):
+    salida=app.cn.obtenerTarifas(idRuta)
+    return salida
+
+@app.put("/rutas/Agregar/VigenciaTarifa/{idRuta:int}/{idTarifas:int}")
+def agregarVigencia(idRuta:int, idTarifas:int, vigencia:VigenciaTarifa):
+    salida=app.cn.insertarVigenciaTarifa(idRuta, idTarifas, vigencia)
+    return salida
+
+@app.put("/rutas/Eliminar/VigenciaTarifa/{idRuta:int}/{idTarifas:int}/{idVigencia:int}")
+def eliminarVigencia(idRuta:int, idTarifas:int, idVigencia:int):
+    salida=app.cn.eliminarVigenciaTarifa(idRuta, idTarifas, idVigencia)
+    return salida
 
 if __name__== '__main__':
     uvicorn.run("main:app",  port=8000,reload=True)

@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios
+from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa
 import datetime
 from bson import ObjectId
 
@@ -22,7 +22,15 @@ class Conection():
             if parada["idParada"] > max_id:
                 max_id = parada["idParada"]
         return max_id + 1
-
+    
+    def obtener_siguiente_id_tarifa(self):
+        max_id = 0
+        for ruta in self.bd.rutas.find():
+            for tarifa in ruta.get("tarifas", []):
+                if tarifa["idTarifas"] > max_id:
+                    max_id = tarifa["idTarifas"]
+        return max_id + 1
+    
     def close(self):
         self.client.close()
 
@@ -168,3 +176,59 @@ class Conection():
                 return {"estatus": "error", "mensaje": "No se encontró un horario con el número de corrida proporcionado en la parada."}
         return {"estatus": "error", "mensaje": "No se encontró una parada con el ID proporcionado en la ruta."}
 
+    def insertarTarifa(self, idRuta, tarifa:Tarifas):
+        idRutaInt = int(idRuta)
+        tarifa_dict = tarifa.dict()
+        tarifa_dict["idTarifas"] = self.obtener_siguiente_id_tarifa()
+        resultado = self.bd.rutas.update_one({"_id": idRutaInt}, {"$push": {"tarifas": tarifa_dict}})
+        if resultado.modified_count == 1:
+            return {"estatus": "éxito", "mensaje": "La tarifa ha sido agregada exitosamente a la ruta."}
+        else:
+            return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado."}
+        
+    def modificarTarifa(self, idRuta, idTarifas, tarifa:Tarifas):
+        idRutaint = int(idRuta)
+        idTarifasInt = int(idTarifas)
+        tarifa_dict = tarifa.dict()
+        tarifa_dict["idTarifas"] = idTarifasInt
+        result = self.bd.rutas.update_one({"_id": idRutaint, "tarifas.idTarifas": idTarifasInt}, {"$set": {"tarifas.$": tarifa_dict}})
+        if result.modified_count == 1:
+            return {"estatus": "éxito", "mensaje": "La tarifa ha sido modificada exitosamente en la ruta."}
+        else:
+            return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado o la tarifa no existe en la ruta."}
+    
+    def eliminarTarifa(self, idRuta, idTarifas):
+        idRutaInt = int(idRuta)
+        idTarifasInt = int(idTarifas)
+        result = self.bd.rutas.update_one({"_id": idRutaInt}, {"$pull": {"tarifas": {"idTarifas": idTarifasInt}}})
+        if result.modified_count == 1:
+            return {"estatus": "éxito", "mensaje": "La tarifa ha sido eliminada exitosamente de la ruta."}
+        else:
+            return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado o la tarifa no existe en la ruta."}
+        
+    def obtenerTarifas(self, idRuta):
+        idRutaInt = int(idRuta)
+        ruta = self.bd.rutas.find_one({"_id": idRutaInt})
+        if ruta is None:
+            return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado."}
+        return ruta.get("tarifas", [])
+    
+    def insertarVigenciaTarifa(self, idRuta, idTarifas, vigencia:VigenciaTarifa):
+        idRutaInt = int(idRuta)
+        idTarifasInt = int(idTarifas)
+        vigencia_dict = vigencia.dict()
+        resultado = self.bd.rutas.update_one({"_id": idRutaInt, "tarifas.idTarifas": idTarifasInt}, {"$push": {"tarifas.$.VigenciaTarifa": vigencia_dict}})
+        if resultado.modified_count == 1:
+            return {"estatus": "éxito", "mensaje": "La vigencia de tarifa ha sido agregada exitosamente a la tarifa."}
+        else:
+            return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado o la tarifa no existe en la ruta."}
+
+    def eliminarVigenciaTarifa(self, idRuta, idTarifa, idVigencia):
+        idRutaInt = int(idRuta)
+        idTarifaInt = int(idTarifa)
+        idVigenciaInt = int(idVigencia)
+        resultado = self.bd.rutas.update_one({"_id": idRutaInt, "tarifas.idTarifas": idTarifaInt}, {"$pull": {"tarifas.$.VigenciaTarifa": {"idVigencia": idVigenciaInt}}})
+        if resultado.modified_count == 1:
+            return {"estatus": "éxito", "mensaje": "La vigencia de tarifa ha sido eliminada exitosamente de la tarifa."}
+        else:
+            return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado, la tarifa no existe en la ruta, o la vigencia de tarifa no existe en la tarifa."}

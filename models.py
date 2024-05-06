@@ -25,11 +25,11 @@ class Parada(BaseModel):
     horarios:list[Horarios]
 
 class VigenciaTarifa(BaseModel):
+    idVigencia:int
     fechaInicio:datetime
     fechaFin:datetime
 
 class Tarifas(BaseModel):
-    idTarifa:int
     precioTarifa:int
     nombreTarifa:str
     reglaAplicabilidad:str
