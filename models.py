@@ -36,6 +36,12 @@ class AgregarRuta(BaseModel):
     inicioRuta:str
     finRuta:str
     idAutobus:int
-    tarifas:list[Tarifas]
-    paradas:list[Parada]
+    idChecador:int
+
+class ModificarRuta(BaseModel):
+    nombre:str
+    tiempoEstimadoViaje:int
+    inicioRuta:str
+    finRuta:str
+    idAutobus:int
     idChecador:int

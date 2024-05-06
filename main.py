@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from models import AgregarParada, AgregarRuta
+from fastapi import FastAPI, Body
+from models import AgregarParada, AgregarRuta, ModificarRuta
 from dao import Conection
 import uvicorn
 
@@ -24,6 +24,25 @@ def AgregarRuta(ruta:AgregarRuta):
     salida=app.cn.insertarRuta(ruta)
     return salida
 
+@app.get("/rutas/Consultar")
+def obtenerRutas():
+    rutas = app.cn.obtenerRutas()
+    return rutas
+
+@app.get("/rutas/Consultar/{id:int}")
+def obtenerRuta(id:int):
+    ruta = app.cn.obtenerRuta(id)
+    return ruta
+
+@app.put("/rutas/Modificar/{id:int}")
+def modificarRuta(id:int, ruta:ModificarRuta):
+    ruta_modificada = app.cn.modificarRuta(id, ruta)
+    return ruta_modificada
+
+@app.delete("/rutas/Eliminar/{id:int}")
+def eliminarRuta(id:int):
+    mensaje = app.cn.eliminarRuta(id)
+    return mensaje
 
 @app.put("/Parada")
 def AgregarParada(parada:AgregarParada):
