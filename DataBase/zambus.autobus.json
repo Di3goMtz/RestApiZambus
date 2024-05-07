@@ -1,0 +1,42 @@
+[{
+  "_id": 1,
+  "capacidad": 15,
+  "estado": "A",
+  "tipo": "Combi",
+  "placa": "ABC123"
+},
+{
+  "_id": 2,
+  "capacidad": 40,
+  "estado": "I",
+  "tipo": "camion",
+  "placa": "DEF123"
+},
+{
+  "_id": 3,
+  "capacidad": 40,
+  "estado": "A",
+  "tipo": "camion",
+  "placa": "GHI123"
+},
+{
+  "_id": 4,
+  "capacidad": 30,
+  "estado": "I",
+  "tipo": "camion",
+  "placa": "JKL123"
+},
+{
+  "_id": 5,
+  "capacidad": 24,
+  "estado": "A",
+  "tipo": "camion",
+  "placa": "MNO124"
+},
+{
+  "_id": 6,
+  "capacidad": 10,
+  "estado": "A",
+  "tipo": "Combi",
+  "placa": "ABC456"
+}]

@@ -1,0 +1,245 @@
+[{
+  "_id": 1,
+  "nombre": "Ruta Roja",
+  "tiempoEstimadoViaje": "2 horas",
+  "inicioRuta": "Central Camionera",
+  "finRuta": "Ario de Rayon",
+  "tarifas": [
+    {
+      "idTarifas": 1,
+      "precioTarifa": 10,
+      "nombreTarifa": "Tarifa Estándar",
+      "ReglaAplicabilidad": "N/A",
+      "VigenciaTarifa": [
+        {
+          "Fechainicio": null,
+          "Fechafin": null,
+          "idVigencia": 1
+        }
+      ]
+    }
+  ],
+  "paradas": [
+    {
+      "idParada": 1,
+      "nombre": "Central Camionera",
+      "ubicacacionLatitud": 12.3456,
+      "ubicacacionLongitud": -78.9012,
+      "horarios": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    },
+    {
+      "idParada": 2,
+      "nombre": "Monumento a Juarez, Av. Juarez",
+      "ubicacacionLatitud": 12.6789,
+      "ubicacacionLongitud": -78.3456,
+      "horarios": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    }
+  ],
+  "idChecador": "6"
+},
+{
+  "_id": 2,
+  "nombre": "ruta gris",
+  "tiempoEstimadoViaje": 15,
+  "inicioRuta": "plaza de jacona",
+  "finRuta": "cbtis 52",
+  "idAutobus": 3,
+  "tarifas": [
+    {
+      "idTarifas": 1,
+      "precioTarifa": 10,
+      "nombreTarifa": "Tarifa Estándar",
+      "ReglaAplicabilidad": "N/A",
+      "VigenciaTarifa": [
+        {
+          "Fechainicio": null,
+          "Fechafin": null
+        }
+      ]
+    },
+    {
+      "idTarifas": 2,
+      "precioTarifa": 8,
+      "nombreTarifa": "Tarifa Estudiante",
+      "ReglaAplicabilidad": "Credencial de estudiante",
+      "VigenciaTarifa": [
+        {
+          "Fechainicio": null,
+          "Fechafin": null
+        }
+      ]
+    },
+    {
+      "idTarifas": 3,
+      "precioTarifa": 8,
+      "nombreTarifa": "Tarifa 3ra Edad",
+      "ReglaAplicabilidad": "Ine",
+      "VigenciaTarifa": [
+        {
+          "Fechainicio": null,
+          "Fechafin": null
+        }
+      ]
+    }
+  ],
+  "paradas": [
+    {
+      "idParada": 1,
+      "nombre": "Chaparaco",
+      "ubicacacionLatitud": 12.3456,
+      "ubicacacionLongitud": -78.9012,
+      "horarios": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    },
+    {
+      "idParada": 2,
+      "nombre": "Monte Olivo",
+      "ubicacacionLatitud": 12.6789,
+      "ubicacacionLongitud": -78.3456,
+      "horarios": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    },
+    {
+      "idParada": 3,
+      "nombre": "Linda Vista",
+      "ubicacacionLatitud": 14.6789,
+      "ubicacacionLongitud": -100.3456,
+      "horarios": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    }
+  ],
+  "idChecador": 6
+},
+{
+  "_id": 3,
+  "nombre": "Ruta Roja",
+  "tiempoEstimadoViaje": "1 horas",
+  "inicioRuta": "Central",
+  "finRuta": "Puente de Tubos",
+  "idAutobus": 3,
+  "tarifas": [
+    {
+      "idTarifas": 1,
+      "precioTarifa": 10,
+      "nombreTarifa": "Tarifa Estándar",
+      "ReglaAplicabilidad": "N/A",
+      "VigenciaTarifa": [
+        {
+          "Fechainicio": null,
+          "Fechafin": null
+        }
+      ]
+    },
+    {
+      "idTarifas": 2,
+      "precioTarifa": 8,
+      "nombreTarifa": "Tarifa Estudiante",
+      "ReglaAplicabilidad": "Credencial de estudiante",
+      "VigenciaTarifa": []
+    }
+  ],
+  "paradas": [
+    {
+      "idParada": 1,
+      "nombre": "Central camionera",
+      "ubicacacionLatitud": 12.7634,
+      "ubicacacionLongitud": -78.3735,
+      "horario": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    },
+    {
+      "idParada": 2,
+      "nombre": "Ario de Rayon",
+      "ubicacacionLatitud": 12.7635,
+      "ubicacacionLongitud": -78.1123,
+      "horarios": [
+        {
+          "NumCorrida": 1,
+          "horaSalida": null,
+          "horarioEstimado": null
+        }
+      ]
+    }
+  ]
+},
+{
+  "_id": 4,
+  "nombre": "ruta openo",
+  "tiempoEstimadoViaje": 24,
+  "inicioRuta": "openo",
+  "finRuta": "jacona plaza",
+  "idAutobus": 2,
+  "idChecador": 6,
+  "paradas": [
+    {
+      "nombre": "entrada/salida openo",
+      "ubicacionLatitud": 192.653653,
+      "ubicacionLongitud": -192.72637,
+      "horarios": [
+        {
+          "numCorrida": 1,
+          "horaSalida": "02:11:49.297000+00:00",
+          "horaEstimado": "02:30:49.297000+00:00"
+        }
+      ],
+      "idParada": 1
+    },
+    {
+      "nombre": "calle constitucion",
+      "ubicacionLatitud": 192.344532,
+      "ubicacionLongitud": -192.44324,
+      "horarios": [
+        {
+          "numCorrida": 1,
+          "horaSalida": "02:30:47.469000+00:00",
+          "horaEstimado": "02:58:47.469000+00:00"
+        },
+        {
+          "numCorrida": 3,
+          "horaSalida": "04:00:48.769000+00:00",
+          "horaEstimado": "04:20:48.769000+00:00"
+        }
+      ],
+      "idParada": 2
+    }
+  ],
+  "tarifas": [
+    {
+      "precioTarifa": 8,
+      "nombreTarifa": "Tarifa Estudiante",
+      "reglaAplicabilidad": "Credencial Estudiantil"
+    }
+  ]
+}]

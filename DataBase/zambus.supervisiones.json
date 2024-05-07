@@ -1,0 +1,73 @@
+[{
+  "_id": {
+    "$oid": "65f87f137571d85e6d1d230f"
+  },
+  "idRuta": 2,
+  "idChecador": 5,
+  "fechaSupervicion": {
+    "$date": "2024-03-18T17:51:15.913Z"
+  },
+  "PuntosRevision": [
+    {
+      "idParada": 2,
+      "NumCorrida": 1,
+      "horaRealLlegada": "12:00",
+      "comentario": "Todo en orden",
+      "idPunto": 1
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "65f87f137571d85e6d1d2310"
+  },
+  "idRuta": 2,
+  "idChecador": 6,
+  "fechaSupervicion": {
+    "$date": "2024-03-18T17:51:15.913Z"
+  },
+  "PuntosRevision": [
+    {
+      "idParada": 3,
+      "NumCorrida": 1,
+      "horaRealLlegada": "13:00",
+      "comentario": "Retraso debido al tráfico"
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "65f87f137571d85e6d1d2311"
+  },
+  "idRuta": 3,
+  "idChecador": 10,
+  "fechaSupervicion": {
+    "$date": "2024-03-18T17:51:15.913Z"
+  },
+  "PuntosRevision": [
+    {
+      "idParada": 1,
+      "NumCorrida": 1,
+      "horaRealLlegada": "14:00",
+      "comentario": "Sin incidencias"
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "65f87f137571d85e6d1d2312"
+  },
+  "idRuta": 3,
+  "idChecador": 5,
+  "fechaSupervicion": {
+    "$date": "2024-03-18T17:51:15.913Z"
+  },
+  "PuntosRevision": [
+    {
+      "idParada": 2,
+      "NumCorrida": 1,
+      "horaRealLlegada": "15:00",
+      "comentario": "Retraso por avería mecánica"
+    }
+  ]
+}]
