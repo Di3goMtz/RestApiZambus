@@ -1,7 +1,11 @@
-from fastapi import FastAPI, Body
-from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa
-from dao import Conection
+from fastapi import FastAPI, Body, HTTPException
+from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa, EmpleadoInsert, Supervision, PuntoRevision, ModificarPuntoRevision, ModificarSupervision
+from dao import Conection, Conexion
 import uvicorn
+from bson import ObjectId
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import date
 
 app = FastAPI()
 
@@ -118,6 +122,95 @@ def agregarVigencia(idRuta:int, idTarifas:int, vigencia:VigenciaTarifa):
 def eliminarVigencia(idRuta:int, idTarifas:int, idVigencia:int):
     salida=app.cn.eliminarVigenciaTarifa(idRuta, idTarifas, idVigencia)
     return salida
+
+#Servicio REST Empleados
+conexion = Conexion()
+
+@app.post("/Empleado/Agregar")
+def agregar_empleado(empleado: EmpleadoInsert):
+    salida=app.cn.agregarEmpleado(empleado)
+    return salida
+
+@app.put("/Empleado/Modificar/{_id}")
+def modificar_empleado(id: int, empleado: EmpleadoInsert):
+    salida=app.cn.modificarEmpleado(id,empleado)
+    return salida
+
+@app.get("/Empleado/Consultar/{_id}")
+def consultar_empleado(id: int):
+    salida=app.cn.consultarEmpleado(id)
+    if salida:
+        return salida
+    else:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+
+@app.get("/Empleado/Consultar")
+def consultar_empleados():
+    salida=app.cn.consultarEmpleados()
+    return salida
+
+@app.delete("/Empleado/Eliminar/{_id}")
+def eliminar_empleado(id: int):
+    salida=app.cn.eliminarEmpleado(id)
+    return salida
+
+#Servicio REST Supervisiones
+@app.post("/supervisiones/agregar")
+def agregar_supervision(supervision: Supervision):
+    try:
+        id_ruta = supervision.id_ruta
+        id_checador = supervision.id_checador
+        fecha_supervision = supervision.fecha_supervision
+        return app.cn.agregar_supervision(id_ruta, id_checador, fecha_supervision)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/supervisiones/{id_supervision}/modificar")
+def modificar_supervision(id_supervision: str, datos: ModificarSupervision):
+    try:
+        id_ruta = datos.idRuta
+        id_checador = datos.idChecador
+        fecha_supervision = datos.fechaSupervicion
+        return conexion.modificar_supervision(id_supervision, id_ruta, id_checador, fecha_supervision)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.delete("/supervisiones/eliminar/{id_supervision}")
+def eliminar_supervision(id_supervision: str):
+    try:
+        return app.cn.quitar_supervision(id_supervision)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.get("/supervisiones/{id_supervision}")
+def consultar_supervision(id_supervision: str):
+    try:
+        return app.cn.consultar_supervision(id_supervision)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/supervisiones/{id_supervision}/puntos/agregar")
+def agregar_punto_revision(id_supervision: str, puntos_revision: List[PuntoRevision]):
+    try:
+        puntos_revision_dict = [p.dict() for p in puntos_revision]
+        return conexion.agregar_punto_revision(id_supervision, puntos_revision_dict)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+@app.delete("/supervisiones/punto/eliminar/{id_supervision}/{id_punto_revision}")
+def eliminar_punto_revision(id_supervision: str, id_punto_revision: int):
+    try:
+        return app.cn.eliminar_punto_revision(id_supervision, id_punto_revision)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.put("/supervisiones/punto/modificar/{id_supervision}")
+def modificar_punto_revision(id_supervision: str, modificar_punto_revision: ModificarPuntoRevision):
+    try:
+        puntos_revision = modificar_punto_revision.PuntosRevision
+        return {"mensaje": "Puntos de revisión modificados correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 if __name__== '__main__':
     uvicorn.run("main:app",  port=8000,reload=True)
