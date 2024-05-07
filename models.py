@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from datetime import datetime, time 
+from datetime import datetime, time,date
 
 class Horarios(BaseModel):
     numCorrida:int
@@ -50,3 +50,48 @@ class ModificarRuta(BaseModel):
     finRuta:str
     idAutobus:int
     idChecador:int
+    #servicio rest autobus
+
+class Autobus(BaseModel):
+    capacidad: int
+    estado: str
+    tipo: str
+    placa: str
+
+class AutobusConsulta(BaseModel):
+    _id: int
+    capacidad: int
+    estado: str
+    tipo: str
+    placa: str
+
+class AgregarAutobus(BaseModel):
+    _id:int
+    capacidad: int
+    estado: str
+    tipo: str
+    placa: str
+
+class ModificarAutobus(BaseModel):
+    capacidad: int
+    estado: str
+    tipo: str
+    placa: str
+#asignaciones
+class Asignacion(BaseModel):
+    _id: int
+    fechaInicio: date
+    fechaFin: date
+    estatus: str
+    idAutobus: int
+    idConductor: int
+    idRuta: int 
+    
+class ModificarAsignacion(BaseModel):
+    _id: int
+    fechaInicio: date
+    fechaFin: date
+    estatus: str
+    idAutobus: int
+    idConductor: int
+    idRuta: int 

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Body
-from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa
+from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa, Autobus, AutobusConsulta, AgregarAutobus,ModificarAutobus,Asignacion,ModificarAsignacion
 from dao import Conection
 import uvicorn
 

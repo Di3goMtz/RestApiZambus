@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa
+from models import AgregarParada, AgregarRuta, ModificarRuta, ParadaOut, Horarios, Tarifas, VigenciaTarifa, Autobus, AutobusConsulta,AgregarAutobus,ModificarAutobus,Asignacion,ModificarAsignacion
 import datetime
 from bson import ObjectId
 
@@ -232,3 +232,106 @@ class Conection():
             return {"estatus": "éxito", "mensaje": "La vigencia de tarifa ha sido eliminada exitosamente de la tarifa."}
         else:
             return {"estatus": "error", "mensaje": "No se encontró una ruta con el ID proporcionado, la tarifa no existe en la ruta, o la vigencia de tarifa no existe en la tarifa."}
+        
+
+    #Servicio Rest Autobus
+
+
+    def consultarAutobus(self,id):
+        id_int = int(id)
+        Autobus = self.bd.autobus.find_one({"_id":id_int})
+        if Autobus is None:
+            return {"estatus": 404, "mensaje": "Autobus no encontrado"}
+        return Autobus
+    
+    def consultarAutobuses(self):
+        Autobuses = list(self.bd.autobus.find())
+        if Autobuses is None:
+            return {"estatus": 404, "mensaje": "Autobuses no encontrado"}
+        return Autobuses
+    #agregar autobus
+    def agregarAutobus(self, autobus: AgregarAutobus):
+        
+        respuesta = {"estatus": "", "mensaje": ""}
+
+        if autobus.capacidad <= 0:
+            return {"estatus": 400, "mensaje": "La capacidad del vehículo debe ser un valor positivo"}
+
+        else:
+            autobus_dict = autobus.dict()
+            autobus_dict["_id"] = self.obtener_siguiente_id()
+            self.bd.autobus.insert_one(autobus_dict)
+            respuesta["estatus"] = "éxito"
+            respuesta["mensaje"] = "El vehículo ha sido agregado exitosamente."
+        return respuesta
+            
+    
+    def modificarAutobus(self, id: int, autobus: ModificarAutobus):
+        respuesta = {"estatus": "", "mensaje": ""}
+        id_int = int(id)
+        autobus_dict = autobus.dict()
+        result = self.bd.autobus.update_one({"_id": id_int}, {"$set": autobus_dict})
+        return self.consultarAutobus(id)  # Asegúrate de devolver la consulta del autobús modificado
+
+    def eliminarAutobus(self, idAutobus: int):
+        res = self.bd.autobus.delete_one({"_id": idAutobus})
+        if res.deleted_count > 0:
+            return {"estatus": 200, "mensaje": "Autobus eliminado con éxito"}
+        else:
+            return {"estatus": 404, "mensaje": "Autobus no encontrado"}
+
+        
+    #asignaciones
+
+    def consultarAsignacion(self,id):
+        id_int = int(id)
+        Asignacion = self.bd.asignaciones.find_one({"_id":id_int})
+        if Asignacion is None:
+            return {"estatus": 404, "mensaje": "Autobus no encontrado"}
+        return Asignacion
+    
+    def consultarAsignaciones(self):
+        asignaciones = list(self.bd.asignaciones.find())
+        if not asignaciones:
+            return {"estatus": 404, "mensaje": "Asignaciones no encontradas"}
+        return asignaciones
+
+    def agregarAsignacion(self, asignacion: Asignacion):
+        respuesta = {"estatus": "", "mensaje": ""}
+        asignacion_dict = asignacion.dict()
+        asignacion_dict["fechaInicio"] = datetime.datetime.combine(asignacion.fechaInicio, datetime.datetime.min.time())
+        asignacion_dict["fechaFin"] = datetime.datetime.combine(asignacion.fechaFin, datetime.datetime.min.time())
+        asignacion_dict["_id"] = self.obtener_siguiente_id_asignaciones()
+        self.bd.asignaciones.insert_one(asignacion_dict)
+        respuesta["estatus"] = "éxito"
+        respuesta["mensaje"] = "La asignación ha sido agregada exitosamente."
+        return respuesta
+    
+    async def modificarAsignacion(self, id: int, asignacion: ModificarAsignacion):
+        respuesta = {"estatus": "", "mensaje": ""}
+        try:
+            id_int = int(id)
+            asignacion_dict = asignacion.dict()
+            result = await self.bd.asignaciones.update_one({"_id": id_int}, {"$set": asignacion_dict})
+            if result.modified_count > 0:
+            # Si se modifica al menos un documento
+                return await self.consultarAsignacion(id_int)
+            else:
+            # Si no se modifica ningún documento, la asignación no se encontró
+                respuesta["estatus"] = "error"
+                respuesta["mensaje"] = "La asignación no pudo ser modificada. Verifica el ID proporcionado."
+            return respuesta
+        except Exception as e:
+        # Manejo de excepciones
+            respuesta["estatus"] = "error"
+            respuesta["mensaje"] = f"Error al modificar la asignación: {str(e)}"
+            return respuesta
+
+
+
+    def eliminarAsignacion(self, idAsignacion: int):
+        res = self.bd.asignaciones.delete_one({"_id": idAsignacion})
+        if res.deleted_count > 0:
+            return {"estatus": 200, "mensaje": "Asignación eliminada con éxito"}
+        else:
+            return {"estatus": 404, "mensaje": "Asignación no encontrada"}
