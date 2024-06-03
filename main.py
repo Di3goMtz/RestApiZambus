@@ -126,17 +126,17 @@ def eliminarVigencia(idRuta:int, idTarifas:int, idVigencia:int):
 #Servicio REST Empleados
 conexion = Conexion()
 
-@app.post("/Empleado/Agregar")
+@app.post("/Empleado/Agregar", tags=["empleadosREST"])
 def agregar_empleado(empleado: EmpleadoInsert):
     salida=app.cn.agregarEmpleado(empleado)
     return salida
 
-@app.put("/Empleado/Modificar/{_id}")
+@app.put("/Empleado/Modificar/{_id}", tags=["empleadosREST"])
 def modificar_empleado(id: int, empleado: EmpleadoInsert):
     salida=app.cn.modificarEmpleado(id,empleado)
     return salida
 
-@app.get("/Empleado/Consultar/{_id}")
+@app.get("/Empleado/Consultar/{_id}", tags=["empleadosREST"])
 def consultar_empleado(id: int):
     salida=app.cn.consultarEmpleado(id)
     if salida:
@@ -144,71 +144,95 @@ def consultar_empleado(id: int):
     else:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
 
-@app.get("/Empleado/Consultar")
+@app.get("/Empleado/Consultar", tags=["empleadosREST"])
 def consultar_empleados():
     salida=app.cn.consultarEmpleados()
     return salida
 
-@app.delete("/Empleado/Eliminar/{_id}")
+@app.delete("/Empleado/Eliminar/{_id}", tags=["empleadosREST"])
 def eliminar_empleado(id: int):
     salida=app.cn.eliminarEmpleado(id)
     return salida
 
 #Servicio REST Supervisiones
-@app.post("/supervisiones/agregar")
+# Agregar supervisión
+@app.post("/supervisiones/agregar", tags=["supervisionesREST"])
 def agregar_supervision(supervision: Supervision):
     try:
-        id_ruta = supervision.id_ruta
-        id_checador = supervision.id_checador
-        fecha_supervision = supervision.fecha_supervision
-        return app.cn.agregar_supervision(id_ruta, id_checador, fecha_supervision)
+        # Validar idRuta e idChecador
+        if not app.cn.validar_ruta(supervision.id_ruta):
+            raise HTTPException(status_code=400, detail="idRuta no existe")
+        if not app.cn.validar_checador(supervision.id_checador):
+            raise HTTPException(status_code=400, detail="idChecador no existe")
+        
+        return app.cn.agregar_supervision(supervision.id_ruta, supervision.id_checador, supervision.fecha_supervision)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.put("/supervisiones/{id_supervision}/modificar")
+# Modificar supervisión
+@app.put("/supervisiones/{id_supervision}/modificar", tags=["supervisionesREST"])
 def modificar_supervision(id_supervision: str, datos: ModificarSupervision):
     try:
-        id_ruta = datos.idRuta
-        id_checador = datos.idChecador
-        fecha_supervision = datos.fechaSupervicion
-        return conexion.modificar_supervision(id_supervision, id_ruta, id_checador, fecha_supervision)
+        # Validar idRuta e idChecador
+        if not app.cn.validar_ruta(datos.idRuta):
+            raise HTTPException(status_code=400, detail="idRuta no existe")
+        if not app.cn.validar_checador(datos.idChecador):
+            raise HTTPException(status_code=400, detail="idChecador no existe")
+        
+        return app.cn.modificar_supervision(id_supervision, datos.idRuta, datos.idChecador, datos.fechaSupervicion)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.delete("/supervisiones/eliminar/{id_supervision}")
+# Eliminar supervisión
+@app.delete("/supervisiones/eliminar/{id_supervision}", tags=["supervisionesREST"])
 def eliminar_supervision(id_supervision: str):
     try:
         return app.cn.quitar_supervision(id_supervision)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.get("/supervisiones/{id_supervision}")
+# Consultar supervisión
+@app.get("/supervisiones/{id_supervision}", tags=["supervisionesREST"])
 def consultar_supervision(id_supervision: str):
     try:
-        return app.cn.consultar_supervision(id_supervision)
+        supervision = app.cn.consultar_supervision(id_supervision)
+        if supervision:
+            id_checador = supervision.get("idChecador")
+            checador = app.cn.obtener_nombre_checador(id_checador)
+            if checador:
+                supervision["nombreChecador"] = checador.get("nombre")
+            return supervision
+        else:
+            raise HTTPException(status_code=404, detail="Supervisión no encontrada")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Agregar punto de revisión
+@app.post("/supervisiones/{id_supervision}/puntos/agregar", tags=["supervisionesREST"])
+def agregar_punto_revision(id_supervision: str, punto_revision: PuntoRevision):
+    try:
+        if app.cn.punto_revision_existe(id_supervision, punto_revision.id_parada):
+            raise HTTPException(status_code=400, detail="El punto de revisión ya existe")
+        
+        return app.cn.agregar_punto_revision(id_supervision, punto_revision)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.post("/supervisiones/{id_supervision}/puntos/agregar")
-def agregar_punto_revision(id_supervision: str, puntos_revision: List[PuntoRevision]):
-    try:
-        puntos_revision_dict = [p.dict() for p in puntos_revision]
-        return conexion.agregar_punto_revision(id_supervision, puntos_revision_dict)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    
-@app.delete("/supervisiones/punto/eliminar/{id_supervision}/{id_punto_revision}")
+# Eliminar punto de revisión
+@app.delete("/supervisiones/punto/eliminar/{id_supervision}/{id_punto_revision}", tags=["supervisionesREST"])
 def eliminar_punto_revision(id_supervision: str, id_punto_revision: int):
     try:
         return app.cn.eliminar_punto_revision(id_supervision, id_punto_revision)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.put("/supervisiones/punto/modificar/{id_supervision}")
-def modificar_punto_revision(id_supervision: str, modificar_punto_revision: ModificarPuntoRevision):
+# Modificar punto de revisión
+@app.put("/supervisiones/punto/modificar/{id_supervision}/{id_punto_revision}", tags=["supervisionesREST"])
+def modificar_punto_revision(id_supervision: str, id_punto_revision: int, modificar_punto_revision: ModificarPuntoRevision):
     try:
-        puntos_revision = modificar_punto_revision.PuntosRevision
-        return {"mensaje": "Puntos de revisión modificados correctamente"}
+        comentario = modificar_punto_revision.comentario
+        return conexion.modificar_punto_revision(id_supervision, id_punto_revision, comentario)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 

@@ -268,20 +268,32 @@ class Conection():
         empleados = list(self.bd.empleados.find())
         return empleados
 
-    def eliminarEmpleado(self, id: str):
-        res = self.bd.empleados.delete_one({"_id": id})
-        if res.deleted_count > 0:
+        
+    def eliminarEmpleado(self, id: int):
+        res = self.bd.empleados.update_one(
+            {"_id": id, "estatus": "A"},
+            {"$set": {"estatus": "I"}}
+        )
+        if res.modified_count > 0:
             return {"estatus": 200, "mensaje": "Empleado eliminado con éxito"}
         else:
             return {"estatus": 404, "mensaje": "Empleado no encontrado"}
 
 #Servicio REST Supervisiones
 
+    def validar_ruta(self, id_ruta: int) -> bool:
+        return self.bd.rutas.find_one({"_id": id_ruta}) is not None
+
+    def validar_checador(self, id_checador: int) -> bool:
+        empleado = self.bd.empleados.find_one({"_id": id_checador, "tipoEmpleado": "Checador"})
+        return empleado is not None
+
     def agregar_supervision(self, id_ruta: int, id_checador: int, fecha_supervision: date):
         nueva_supervision = {
             "idRuta": id_ruta,
             "idChecador": id_checador,
             "fechaSupervicion": fecha_supervision,
+            "estatus": "A",
             "PuntosRevision": []
         }
         self.bd.supervisiones.insert_one(nueva_supervision)
@@ -289,22 +301,35 @@ class Conection():
 
     def modificar_supervision(self, id_supervision: str, id_ruta: int, id_checador: int, fecha_supervision: date) -> dict:
         _id = ObjectId(id_supervision)
-        fecha_supervision_str = fecha_supervision.isoformat() 
+        supervision_actual = self.bd.supervisiones.find_one({"_id": _id})
+        if not supervision_actual:
+            return {"estatus": 404, "mensaje": "Supervisión no encontrada"}
+        # Crear un diccionario con los nuevos valores que se van a actualizar
+        nuevos_valores = {}
+        if id_ruta is not None and self.validar_ruta(id_ruta):
+            nuevos_valores["idRuta"] = id_ruta
+        if id_checador is not None and self.validar_checador(id_checador):
+            nuevos_valores["idChecador"] = id_checador
+        if fecha_supervision is not None:
+            nuevos_valores["fechaSupervicion"] = fecha_supervision.isoformat()
+        # Actualizar la supervisión con los nuevos valores
         res = self.bd.supervisiones.update_one(
             {"_id": _id},
-            {"$set": {"idRuta": id_ruta, "idChecador": id_checador, "fechaSupervicion": fecha_supervision_str}}
+            {"$set": nuevos_valores}
         )
         if res.modified_count > 0:
             return {"estatus": 200, "mensaje": "Supervisión modificada con éxito"}
         else:
             return {"estatus": 404, "mensaje": "Supervisión no encontrada"}
-
-
+            
     def quitar_supervision(self, id_supervision: str):
         _id = ObjectId(id_supervision)
-        res = self.bd.supervisiones.delete_one({"_id": _id})
-        if res.deleted_count > 0:
-            return {"estatus": 200, "mensaje": "Supervisión eliminada con éxito"}
+        res = self.bd.supervisiones.update_one(
+            {"_id": _id},
+            {"$set": {"estatus": "I"}}
+        )
+        if res.modified_count > 0:
+            return {"estatus": 200, "mensaje": "Supervisión marcada como inactiva"}
         else:
             return {"estatus": 404, "mensaje": "Supervisión no encontrada"}
 
@@ -312,41 +337,72 @@ class Conection():
         _id = ObjectId(id_supervision)
         supervision = self.bd.supervisiones.find_one({"_id": _id})
         if supervision:
-            supervision["_id"] = str(supervision["_id"]) 
+            id_ruta = supervision.get("idRuta")
+            id_checador = supervision.get("idChecador")
+            ruta = self.bd.rutas.find_one({"_id": id_ruta})
+            checador = self.bd.empleados.find_one({"tipoEmpleado": "Checador"})
+            if ruta and checador:
+                supervision["nombreRuta"] = ruta.get("nombre")
+                supervision["nombreChecador"] = checador.get("nombre")
+            supervision["_id"] = str(supervision["_id"])
             return supervision
         else:
             return None
 
-    def agregar_punto_revision(self, id_supervision: str, puntos_revision: List[dict]) -> dict:
+    def obtener_nombre_ruta(self, id_ruta: int) -> str:
+        ruta = self.bd.rutas.find_one({"_id": id_ruta})
+        return ruta["nombre"] if ruta else None
+
+    def obtener_nombre_checador(self, id_checador: int) -> str:
+        checador = self.bd.checadores.find_one({"_id": id_checador})
+        return checador["nombre"] if checador else None
+
+    def agregar_punto_revision(self, id_supervision: str, punto_revision: dict) -> dict:
         _id = ObjectId(id_supervision)
-        res = self.bd.supervisiones.update_one({"_id": _id},{"$push": {"PuntosRevision": {"$each": puntos_revision}}})
+        res = self.bd.supervisiones.update_one({"_id": _id}, {"$push": {"PuntosRevision": punto_revision}})
         if res.modified_count > 0:
-            return {"estatus": 200, "mensaje": "Puntos de revisión agregados con éxito"}
+            return {"estatus": 200, "mensaje": "Punto de revisión agregado con éxito"}
         else:
             return {"estatus": 404, "mensaje": "Supervisión no encontrada"}
 
-        
+    def punto_revision_existe(self, id_supervision: str, id_parada: int) -> bool:
+        _id = ObjectId(id_supervision)
+        supervision = self.bd.supervisiones.find_one({"_id": _id, "PuntosRevision.idParada": id_parada})
+        return supervision is not None
 
     def eliminar_punto_revision(self, id_supervision: str, id_punto_revision: int) -> dict:
         _id = ObjectId(id_supervision)
         res = self.bd.supervisiones.update_one(
             {"_id": _id},
-            {"$pull": {"PuntosRevision": {"id_parada": id_punto_revision}}}
+            {"$pull": {"PuntosRevision": {"idParada": id_punto_revision}}}
         )
         if res.modified_count > 0:
             return {"estatus": 200, "mensaje": "Punto de revisión eliminado con éxito"}
         else:
             return {"estatus": 404, "mensaje": "Punto de revisión no encontrado"}
-        
 
-    def modificar_punto_revision(self, id_supervision: str, modificar_punto_revision: ModificarPuntoRevision):
-        try:
-            puntos_revision = modificar_punto_revision.PuntosRevision
-            superv = self.bd.supervisiones.find_one({"_id": ObjectId(id_supervision)})
-            if superv:
-                self.bd.supervisiones.update_one({"_id": ObjectId(id_supervision)}, {"$set": {"PuntosRevision": puntos_revision}})
-                return {"mensaje": "Puntos de revisión modificados correctamente"}
-            else:
-                raise ValueError("Supervisión no encontrada")
-        except Exception as e:
-            raise e
+    def modificar_punto_revision(self, id_supervision: str, id_punto_revision: int, comentario: str) -> dict:
+        _id = ObjectId(id_supervision)
+        # Buscar la supervisión
+        supervision = self.bd.supervisiones.find_one({"_id": _id})
+        if not supervision:
+            return {"estatus": 404, "mensaje": "Supervisión no encontrada"}
+
+        # Buscar el punto de revisión en la lista de puntos de revisión de la supervisión
+        puntos_revision = supervision.get("PuntosRevision", [])
+        punto_revision_modificado = None
+        for punto in puntos_revision:
+            if punto.get("id_parada") == id_punto_revision:
+                punto_revision_modificado = punto
+                break
+        # Si se encontró el punto de revisión, actualizar el comentario
+        if punto_revision_modificado:
+            punto_revision_modificado["comentario"] = comentario
+            # Actualizar la supervisión en la base de datos
+            res = self.bd.supervisiones.update_one(
+                {"_id": _id},
+                {"$set": {"PuntosRevision": puntos_revision}}
+            )
+            if res.modified_count > 0:
+                return {"estatus": 200, "mensaje": "Punto de revisión modificado con éxito"}
+        return {"estatus": 404, "mensaje": "Punto de revisión no encontrado"}

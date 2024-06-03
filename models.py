@@ -81,6 +81,7 @@ class EmpleadoConsulta(BaseModel):
 
 
 #Servicio REST Supervisiones
+
 class Supervision(BaseModel):
     id_ruta: int
     id_checador: int
@@ -99,4 +100,4 @@ class ModificarSupervision(BaseModel):
     fechaSupervicion: date
 
 class ModificarPuntoRevision(BaseModel):
-    PuntosRevision: List[PuntoRevision]
+    comentario: str
